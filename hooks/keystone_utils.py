@@ -337,6 +337,10 @@ valid_services = {
         "type": "policy",
         "desc": "Congress policy management service"
     },
+    "trove": {
+        "type": "database",
+        "desc": "Database as a service"
+    },
 }
 
 # The interface is said to be satisfied if anyone of the interfaces in the
