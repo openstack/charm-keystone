@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+import binascii
 import hashlib
 import os
 
@@ -37,6 +39,7 @@ from charmhelpers.core.hookenv import (
     log,
     leader_get,
     DEBUG,
+    ERROR,
     INFO,
 )
 
@@ -264,6 +267,14 @@ class KeystoneContext(context.OSContextGenerator):
         ctxt['admin_endpoint'] = endpoint_url(
             resolve_address(ADMIN),
             api_port('keystone-admin')).replace('v2.0', '')
+
+        if config('policy-override'):
+            ctxt['policy_override'] = True
+            try:
+                ctxt['custom_policy'] = b64decode(config('policy-override'))
+            except binascii.Error as e:
+                log('Could not decode policy.json override', level=ERROR)
+                raise e
 
         return ctxt
 

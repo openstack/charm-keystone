@@ -1,4 +1,6 @@
-{% if api_version == 3 -%}
+{% if policy_override -%}
+{{ custom_policy }}
+{% else api_version == 3 -%}
 {
     "admin_required": "role:{{ admin_role }}",
     "cloud_admin": "rule:admin_required and (is_admin_project:True or domain_id:{{ admin_domain_id }} or project_id:{{ service_tenant_id }})",

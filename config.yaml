@@ -415,4 +415,9 @@ options:
     description: |
       A comma-separated list of nagios servicegroups.
       If left empty, the nagios_context will be used as the servicegroup
-
+  policy-override:
+    type: string
+    default: None
+    description: |
+      Base64 encoded policy.json template to override the default policy.json
+      Use at your own risk.
