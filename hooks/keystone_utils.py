@@ -296,6 +296,10 @@ valid_services = {
         "type": "OpServer",
         "desc": "Contrail Analytics Service"
     },
+    "dmapi": {
+        "type": "datamover",
+        "desc": "Trilio DataMover API Service"
+    },
     "ec2": {
         "type": "ec2",
         "desc": "EC2 Compatibility Layer"
