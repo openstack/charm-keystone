@@ -17,7 +17,7 @@ relations:
   - keystone:identity-service
 applications:
   mysql:
-    charm: cs:~openstack-charmers-next/percona-cluster
+    charm: cs:~openstack-charmers/percona-cluster
     num_units: 1
     to:
     - '0'
@@ -33,7 +33,7 @@ applications:
     - '2'
     - '3'
   glance:
-    charm: cs:~openstack-charmers-next/glance
+    charm: cs:~openstack-charmers/glance
     num_units: 1
     options:
       openstack-origin: cloud:bionic-train

@@ -20,12 +20,12 @@ machines:
 applications:
 
   glance-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: cs:~openstack-charmers/mysql-router
   keystone-mysql-router:
-    charm: cs:~openstack-charmers-next/mysql-router
+    charm: cs:~openstack-charmers/mysql-router
 
   mysql-innodb-cluster:
-    charm: cs:~openstack-charmers-next/mysql-innodb-cluster
+    charm: cs:~openstack-charmers/mysql-innodb-cluster
     num_units: 3
     options:
       source: *openstack-origin
@@ -47,7 +47,7 @@ applications:
     - '5'
 
   glance:
-    charm: cs:~openstack-charmers-next/glance
+    charm: cs:~openstack-charmers/glance
     num_units: 1
     options:
       openstack-origin: *openstack-origin
