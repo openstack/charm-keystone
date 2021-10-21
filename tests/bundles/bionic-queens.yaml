@@ -21,7 +21,6 @@ applications:
     num_units: 1
     to:
     - '0'
-    channel: candidate
   keystone:
     series: bionic
     charm: ../../../keystone
@@ -38,4 +37,3 @@ applications:
     num_units: 1
     to:
     - '4'
-    channel: candidate

@@ -21,10 +21,8 @@ applications:
 
   glance-mysql-router:
     charm: cs:~openstack-charmers/mysql-router
-    channel: candidate
   keystone-mysql-router:
     charm: cs:~openstack-charmers/mysql-router
-    channel: candidate
 
   mysql-innodb-cluster:
     charm: cs:~openstack-charmers/mysql-innodb-cluster
@@ -35,7 +33,6 @@ applications:
       - '0'
       - '1'
       - '2'
-    channel: candidate
 
   keystone:
     charm: ../../../keystone
@@ -56,7 +53,6 @@ applications:
       openstack-origin: *openstack-origin
     to:
     - '6'
-    channel: candidate
 
 relations:
 

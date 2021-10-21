@@ -43,4 +43,3 @@ applications:
       openstack-origin: cloud:trusty-mitaka
     to:
     - '4'
-    channel: candidate

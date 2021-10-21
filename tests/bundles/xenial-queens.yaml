@@ -21,7 +21,6 @@ applications:
     num_units: 1
     to:
     - '0'
-    channel: candidate
   keystone:
     series: xenial
     charm: ../../../keystone
@@ -41,4 +40,3 @@ applications:
       openstack-origin: cloud:xenial-queens
     to:
     - '4'
-    channel: candidate

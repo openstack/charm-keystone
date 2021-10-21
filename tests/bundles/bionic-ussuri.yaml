@@ -21,7 +21,6 @@ applications:
     num_units: 1
     to:
     - '0'
-    channel: candidate
   keystone:
     charm: ../../../keystone
     num_units: 3
@@ -39,4 +38,3 @@ applications:
       openstack-origin: cloud:bionic-ussuri
     to:
     - '4'
-    channel: candidate
