@@ -1,10 +1,14 @@
 - project:
     templates:
-      - charm-unit-jobs
-      - charm-functional-jobs
+      - charm-unit-jobs-py38
+      - charm-unit-jobs-py39
     check:
       jobs:
-        - focal-xena:
-            voting: false
+        - focal-wallaby
+        - focal-xena
         - impish-xena:
             voting: false
+    vars:
+      needs_charm_build: true
+      charm_build_name: keystone
+      build_type: charmcraft

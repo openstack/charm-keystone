@@ -4,8 +4,9 @@ applications:
     options:
       vip: '{{ OS_VIP00 }}'
   hacluster:
-    charm: cs:~openstack-charmers/hacluster
+    charm: ch:hacluster
     num_units: 0
+    channel: 2.0.3/edge
 relations:
 - - keystone
   - hacluster
