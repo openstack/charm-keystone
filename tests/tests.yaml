@@ -26,5 +26,4 @@ tests:
 tests_options:
   policyd:
     service: keystone
-  force_deploy:
-    - impish-xena
+  force_deploy: []

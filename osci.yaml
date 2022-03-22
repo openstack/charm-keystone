@@ -1,13 +1,10 @@
 - project:
     templates:
       - charm-unit-jobs-py38
-      - charm-unit-jobs-py39
     check:
       jobs:
         - focal-wallaby
         - focal-xena
-        - impish-xena:
-            voting: false
     vars:
       needs_charm_build: true
       charm_build_name: keystone
