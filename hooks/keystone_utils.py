@@ -464,6 +464,10 @@ valid_services = {
         "type": "workloads",
         "desc": "TrilioVault Workload Manager Service",
     },
+    "keystone": {
+        "type": "identity",
+        "desc": "Keystone Identity Service",
+    },
 }
 
 # The interface is said to be satisfied if anyone of the interfaces in the
@@ -1581,8 +1585,9 @@ def ensure_initial_admin(config):
                                         set_admin_passwd, tenant='admin',
                                         new_roles=[config('admin-role')])
 
-        create_service_entry("keystone", "identity",
-                             "Keystone Identity Service")
+        service_type = valid_services['keystone']['type']
+        desc = valid_services['keystone']['desc']
+        create_service_entry("keystone", service_type, desc)
 
         for region in config('region').split():
             create_keystone_endpoint(public_ip=resolve_address(PUBLIC),
@@ -1881,6 +1886,12 @@ def add_service_to_keystone(relation_id=None, remote_unit=None):
             relation_data["api_version"] = get_api_version()
             relation_data["admin_domain_id"] = leader_get(
                 attribute='admin_domain_id')
+
+            if 'service' in settings:
+                svc_name = settings['service'].partition('_')[0]
+                relation_data['service_type'] = \
+                    valid_services[svc_name]['type']
+
             # Allow the remote service to request creation of any additional
             # roles. Currently used by Horizon
             for role in requested_roles:
@@ -2011,6 +2022,12 @@ def add_service_to_keystone(relation_id=None, remote_unit=None):
         "created_roles": ','.join(
             get_real_role_names(requested_roles, manager))
     }
+
+    # get service key
+    svckey = [k for k in settings if k.endswith('_service')] or ['service']
+    if svckey[0] in settings:
+        relation_data['service_type'] = \
+            valid_services[settings[svckey[0]]]['type']
 
     peer_store_and_set(relation_id=relation_id, **relation_data)
     # NOTE(dosaboy): '__null__' settings are for peer relation only so that
