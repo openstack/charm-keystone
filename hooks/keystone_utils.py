@@ -1887,10 +1887,15 @@ def add_service_to_keystone(relation_id=None, remote_unit=None):
             relation_data["admin_domain_id"] = leader_get(
                 attribute='admin_domain_id')
 
-            if 'service' in settings:
+            if settings.get('service') is not None:
                 svc_name = settings['service'].partition('_')[0]
-                relation_data['service_type'] = \
-                    valid_services[svc_name]['type']
+                if svc_name in valid_services:
+                    relation_data['service_type'] = \
+                        valid_services[svc_name]['type']
+                else:
+                    log("service '{}' not found in valid_services "
+                        "catalog so unable to set service_type on relation".
+                        format(svc_name), level=WARNING)
 
             # Allow the remote service to request creation of any additional
             # roles. Currently used by Horizon
