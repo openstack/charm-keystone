@@ -3,6 +3,7 @@
 {% for dashboard_url in trusted_dashboards -%}
 trusted_dashboard = {{ dashboard_url }}
 {% endfor -%}
+default_authorization_ttl = {{ default_authorization_ttl }}
 {% endif %}
 {% for sp in fid_sps -%}
 [{{ sp['protocol-name'] }}]
