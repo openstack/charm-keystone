@@ -436,3 +436,9 @@ options:
       the charm, but it's possible that it may break things unexpectedly.
       Please ensure that the the README and relevant documentation is consulted
       before setting this configuration option.
+  default-authorization-ttl:
+    type: int
+    default: 0
+    description: |
+      Default time (in minutes) for the validity of group memberships carried
+      over from a federation mapping. Default is 0 which means disabled.

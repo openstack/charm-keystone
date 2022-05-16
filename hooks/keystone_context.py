@@ -249,6 +249,8 @@ class KeystoneContext(context.OSContextGenerator):
             ctxt['log_config'] = ('/etc/keystone/logging.conf')
             ctxt['paste_config_file'] = '/etc/keystone/keystone-paste.ini'
 
+        ctxt['default_authorization_ttl'] = config('default-authorization-ttl')
+
         return ctxt
 
     ALLOWED_SECURITY_COMPLIANCE_SCHEMA = {
