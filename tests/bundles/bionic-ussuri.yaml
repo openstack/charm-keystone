@@ -1,3 +1,5 @@
+local_overlay_enabled: False
+
 series: bionic
 comment:
 - 'machines section to decide order of deployment. database sooner = faster'
@@ -17,12 +19,13 @@ relations:
   - keystone:identity-service
 applications:
   mysql:
-    charm: cs:~openstack-charmers/percona-cluster
+    charm: ch:percona-cluster
     num_units: 1
     to:
     - '0'
+    channel: 5.7/edge
   keystone:
-    charm: ../../../keystone
+    charm: ../../keystone.charm
     num_units: 3
     options:
       openstack-origin: cloud:bionic-ussuri
@@ -32,9 +35,10 @@ applications:
     - '2'
     - '3'
   glance:
-    charm: cs:~openstack-charmers/glance
+    charm: ch:glance
     num_units: 1
     options:
       openstack-origin: cloud:bionic-ussuri
     to:
     - '4'
+    channel: ussuri/edge

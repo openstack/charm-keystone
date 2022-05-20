@@ -4,24 +4,11 @@ smoke_bundles:
 - focal-ussuri
 
 gate_bundles:
-- focal-xena
-- focal-wallaby
-- focal-victoria
 - focal-ussuri
 - bionic-ussuri
 - bionic-train
-- bionic-stein
-- bionic-queens
-- xenial-mitaka
 
-dev_bundles:
-- trusty-mitaka
-- xenial-ocata
-- xenial-pike
-- xenial-queens
-- bionic-rocky
-- groovy-victoria
-- hirsute-wallaby
+dev_bundles: []
 
 comment: |
   the glance configure job validates operation of identity-service relation.
@@ -40,6 +27,4 @@ tests:
 tests_options:
   policyd:
     service: keystone
-  force_deploy:
-    - groovy-victoria
-    - impish-xena
+  force_deploy: []
