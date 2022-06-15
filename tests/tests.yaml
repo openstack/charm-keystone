@@ -1,15 +1,14 @@
 charm_name: keystone
 
 smoke_bundles:
-- focal-xena
+- focal-yoga
 
 gate_bundles:
-- focal-xena
-- impish-xena
-
-dev_bundles:
 - focal-yoga
 - jammy-yoga
+- focal-xena
+
+dev_bundles: []
 
 comment: |
   the glance configure job validates operation of identity-service relation.
@@ -40,7 +39,6 @@ tests_options:
   policyd:
     service: keystone
   force_deploy:
-    - impish-xena
     - jammy-yoga
 target_deploy_status:
   vault:
