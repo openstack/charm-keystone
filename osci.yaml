@@ -1,10 +1,11 @@
 - project:
     templates:
-      - charm-unit-jobs
-      - charm-functional-jobs
-    check:
-      jobs:
-        - focal-xena:
-            voting: false
-        - impish-xena:
-            voting: false
+      - charm-unit-jobs-py36
+      - charm-queens-functional-jobs
+      - charm-rocky-functional-jobs
+      - charm-stein-functional-jobs
+      - charm-train-functional-jobs
+    vars:
+      needs_charm_build: true
+      charm_build_name: keystone
+      build_type: charmcraft
