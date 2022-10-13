@@ -498,6 +498,7 @@ class TestKeystoneUtils(CharmTestCase):
         relation_data = {'admin_domain_id': None,
                          'admin_user_id': admin_user_id,
                          'admin_project_id': admin_project_id,
+                         'admin_role': 'Admin',
                          'auth_host': '10.0.0.3',
                          'service_host': '10.0.0.3',
                          'service_port': 81, 'auth_port': 80,

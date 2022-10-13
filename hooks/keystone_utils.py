@@ -2201,6 +2201,7 @@ def add_service_to_keystone(relation_id=None, remote_unit=None):
         "admin_domain_id": leader_get(attribute='admin_domain_id'),
         "admin_project_id": admin_project_id,
         "admin_user_id": admin_user_id,
+        "admin_role": config("admin-role"),
         "created_roles": ','.join(
             get_real_role_names(requested_roles, manager))
     }
