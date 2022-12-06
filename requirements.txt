@@ -22,3 +22,5 @@ dnspython<2.0.0; python_version < '3.6'
 dnspython; python_version >= '3.6'
 
 psutil>=1.1.1,<2.0.0
+
+jsonschema<4.18.0   # jsonschema 4.18.0 depends on Rust (via rpds-py)
