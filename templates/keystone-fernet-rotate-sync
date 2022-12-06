@@ -2,8 +2,8 @@
 # works out when to do the rotate and sync of the keys.
 {% if enabled -%}
 {% if use_syslog -%}
-{{ minute }} * * * * root /usr/bin/juju-run {{ unit_name }} {{ charm_dir }}/scripts/fernet_rotate_and_sync.py 2>&1 | logger -t keystone-fernet-rotate-sync
+{{ minute }} * * * * root $(which /usr/bin/juju-exec || which /usr/bin/juju-run) {{ unit_name }} {{ charm_dir }}/scripts/fernet_rotate_and_sync.py 2>&1 | logger -t keystone-fernet-rotate-sync
 {% else -%}
-{{ minute }} * * * * root /usr/bin/juju-run {{ unit_name }} {{ charm_dir }}/scripts/fernet_rotate_and_sync.py >> /var/log/keystone/keystone-fernet-rotate-sync.log 2>&1
+{{ minute }} * * * * root $(which /usr/bin/juju-exec || which /usr/bin/juju-run) {{ unit_name }} {{ charm_dir }}/scripts/fernet_rotate_and_sync.py >> /var/log/keystone/keystone-fernet-rotate-sync.log 2>&1
 {% endif -%}
 {% endif -%}
