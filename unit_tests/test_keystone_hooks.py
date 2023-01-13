@@ -18,7 +18,7 @@ import sys
 
 import charmhelpers.contrib.openstack.utils as os_utils
 
-from mock import call, patch, MagicMock, ANY
+from unittest.mock import call, patch, MagicMock, ANY
 from test_utils import CharmTestCase
 
 # python-apt is not installed as part of test-requirements but is imported by
