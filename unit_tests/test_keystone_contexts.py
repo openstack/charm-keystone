@@ -16,7 +16,7 @@ import collections
 import importlib
 import os
 
-from mock import patch, MagicMock, ANY
+from unittest.mock import patch, MagicMock, ANY
 with patch('charmhelpers.contrib.openstack.'
            'utils.snap_install_requested') as snap_install_requested:
     snap_install_requested.return_value = False
@@ -549,39 +549,59 @@ class TestKeystoneContexts(CharmTestCase):
     @patch.object(context, 'log')
     def test__decode_password_security_compliance_string_pre_newton(
             self, mock_log):
+        self.log_message = None
+
+        def _mock_log(message, level=None):
+            self.log_message = message
+        mock_log.side_effect = _mock_log
         self.os_release.return_value = 'mitaka'
         self.assertIsNone(
             context.
             KeystoneContext.
             _decode_password_security_compliance_string(""))
         mock_log.assert_called_once_with(ANY, level='ERROR')
-        self.assertIn("Newton", mock_log.call_args.args[0])
+        self.assertIn("Newton", self.log_message)
 
     @patch.object(context, 'log')
     def test__decode_password_security_compliance_string_invalid_yaml(
             self, mock_log):
+        self.log_message = None
+
+        def _mock_log(message, level=None):
+            self.log_message = message
+        mock_log.side_effect = _mock_log
         self.os_release.return_value = 'ocata'
         self.assertIsNone(
             context.
             KeystoneContext.
             _decode_password_security_compliance_string("hello: this: one"))
         mock_log.assert_called_once_with(ANY, level='ERROR')
-        self.assertIn("Invalid YAML", mock_log.call_args.args[0])
+        self.assertIn("Invalid YAML", self.log_message)
 
     @patch.object(context, 'log')
     def test__decode_password_security_compliance_string_yaml_not_dict(
             self, mock_log):
+        self.log_message = None
+
+        def _mock_log(message, level=None):
+            self.log_message = message
+        mock_log.side_effect = _mock_log
         self.os_release.return_value = 'pike'
         self.assertIsNone(
             context.
             KeystoneContext.
             _decode_password_security_compliance_string("hello"))
         mock_log.assert_called_once_with(ANY, level='ERROR')
-        self.assertIn("dictionary", mock_log.call_args.args[0])
+        self.assertIn("dictionary", self.log_message)
 
     @patch.object(context, 'log')
     def test__decode_password_security_compliance_string_invalid_key(
             self, mock_log):
+        self.log_message = None
+
+        def _mock_log(message, level=None):
+            self.log_message = message
+        mock_log.side_effect = _mock_log
         self.os_release.return_value = 'queens'
         self.assertIsNone(
             context.
@@ -589,11 +609,16 @@ class TestKeystoneContexts(CharmTestCase):
             _decode_password_security_compliance_string(
                 "lockout_failure_attempts: 5\nlookout_duration: 180\n"))
         mock_log.assert_called_once_with(ANY, level='ERROR')
-        self.assertIn("Invalid config key(s)", mock_log.call_args.args[0])
+        self.assertIn("Invalid config key(s)", self.log_message)
 
     @patch.object(context, 'log')
     def test__decode_password_security_compliance_string_invalid_type(
             self, mock_log):
+        self.log_message = None
+
+        def _mock_log(message, level=None):
+            self.log_message = message
+        mock_log.side_effect = _mock_log
         self.os_release.return_value = 'rocky'
         self.assertIsNone(
             context.
@@ -601,7 +626,7 @@ class TestKeystoneContexts(CharmTestCase):
             _decode_password_security_compliance_string(
                 "lockout_failure_attempts: hello"))
         mock_log.assert_called_once_with(ANY, level='ERROR')
-        self.assertIn("Invalid config value", mock_log.call_args.args[0])
+        self.assertIn("Invalid config value", self.log_message)
 
     @patch.object(context, 'log')
     def test__decode_password_security_compliance_string_valid(
