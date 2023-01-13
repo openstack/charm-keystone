@@ -15,7 +15,7 @@
 import builtins
 import collections
 import copy
-from mock import ANY, patch, call, MagicMock, mock_open, Mock
+from unittest.mock import ANY, patch, call, MagicMock, mock_open, Mock
 import json
 import os
 import subprocess
