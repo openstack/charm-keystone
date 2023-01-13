@@ -14,7 +14,7 @@
 
 import sys
 
-from mock import patch
+from unittest.mock import patch
 
 from test_utils import CharmTestCase
 
