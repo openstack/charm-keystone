@@ -442,3 +442,10 @@ options:
     description: |
       Default time (in minutes) for the validity of group memberships carried
       over from a federation mapping. Default is 0 which means disabled.
+  ec2-auth-ttl:
+    type: int
+    default: 15
+    description: |
+      The config item specifies the auth_ttl otion in [credentials]. This is
+      the length of time in minutes for which a signed EC2 or S3 token request
+      is valid from the timestamp contained in the token request.

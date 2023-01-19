@@ -208,6 +208,7 @@ class KeystoneContext(context.OSContextGenerator):
         ctxt['assignment_backend'] = config('assignment-backend')
         ctxt['token_provider'] = config('token-provider')
         ctxt['fernet_max_active_keys'] = config('fernet-max-active-keys')
+        ctxt['ec2_auth_ttl'] = config('ec2-auth-ttl')
         if config('identity-backend') == 'ldap':
             ctxt['ldap_server'] = config('ldap-server')
             ctxt['ldap_user'] = config('ldap-user')
