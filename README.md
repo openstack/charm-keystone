@@ -58,6 +58,10 @@ deployed then see file `actions.yaml`.
 * `pause`
 * `resume`
 * `security-checklist`
+* `get-admin-password`
+* `rotate-admin-password`
+* `rotate-service-user-password`
+* `list-service-usernames`
 
 ## High availability
 
