@@ -17,6 +17,24 @@ rotate-admin-password:
     Rotate the admin user's password.
     The current password is replaced with a randomly generated password. The
     new password is stored in the leader's admin_passwd bucket.
+rotate-service-user-password:
+  description: |
+    Rotate the specified service user's password. The current password is
+    replaced with a randomly generated password. The password is changed on the
+    relation to the service user's units. This may result in a control plane
+    outage for the duration of the password changing process.
+  params:
+    service-user:
+      type: string
+      description: |
+        The name of the service as specified by the service user charm. e.g.
+        'cinder' for the cinder charm, 'glance' for the glance charm.
+list-service-usernames:
+  description: |
+    List the usernames of the services as known by keystone.  This may differ
+    from those expected due to either prefixes or a service providing multiple
+    endpoints.  The service username passed to 'rotate-service-user-password'
+    needs to be one of this list.
 openstack-upgrade:
   description: |
     Perform openstack upgrades. Config option action-managed-upgrade must be

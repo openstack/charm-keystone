@@ -223,6 +223,7 @@ FERNET_KEY_ROTATE_SYNC_CRON_FILE = '/etc/cron.d/keystone-fernet-rotate-sync'
 WSGI_KEYSTONE_API_CONF = '/etc/apache2/sites-enabled/wsgi-openstack-api.conf'
 UNUSED_APACHE_SITE_FILES = ['/etc/apache2/sites-enabled/keystone.conf',
                             '/etc/apache2/sites-enabled/wsgi-keystone.conf']
+SERVICE_PASSWD_LENGTH = 64
 
 BASE_RESOURCE_MAP = OrderedDict([
     (KEYSTONE_CONF, {
@@ -1521,6 +1522,99 @@ def rotate_admin_passwd():
     leader_set({'admin_passwd': new_passwd})
 
 
+class NotLeaderError(Exception):
+    """Raised if not the leader."""
+    pass
+
+
+class InvalidService(Exception):
+    """Raised if not the leader."""
+    pass
+
+
+def get_service_usernames():
+    """Return the known service usernames that can be password rotated.
+
+    :returns: the list of known service usernames
+    :rtype: List[str]
+    """
+    usernames = [k[:-len('_passwd')] for k in leader_get()
+                 if k.endswith('_passwd') and k != 'admin_passwd']
+    # now match against the service list.
+    valid_service_names = valid_services.keys()
+    known_service_usernames = []
+    for username in usernames:
+        # if a username has '_' in it, then it is a compound name.
+        parts = username.split('_')
+        if 'keystone' in parts:
+            continue
+        if not all(p in valid_service_names for p in parts):
+            continue
+        known_service_usernames.append(username)
+    return known_service_usernames
+
+
+def rotate_service_user_passwd(service):
+    """Rotate the password for the specified service user.
+
+    Note that the function checks that the charm is the leader.
+
+    :param service: the service to rotate the password for.  This needs to be
+        in the form that it is stored in leader settings.
+    :type service: str
+    :raises: RuntimeError if the unit is not the leader.
+    :raises: ValueError if the service_user doesn't exist.
+    :raises: RuntimeError if the password can't be changed.
+    """
+    if not is_leader():
+        msg = (
+            "This unit is not the leader and therefore can't rotate the "
+            "password for user {}.".format(service))
+        log(msg, level=ERROR)
+        raise NotLeaderError(msg)
+    # validate that the service is actually known about.
+    known_usernames = get_service_usernames()
+    if service not in known_usernames:
+        msg = ("Invalid service requested: '{}' not one of {} services."
+               .format(service, ', '.join(known_usernames)))
+        log(msg, level=ERROR)
+        raise InvalidService(msg)
+    # Note that the service is already prefixed as that is how it is stored in
+    # the leader-settings
+    # check whether the service has been related/saved
+    if not is_service_password_saved(service):
+        msg = ("Service requested: '{}' is not known in this model."
+               .format(service))
+        log(msg, level=ERROR)
+        raise InvalidService(msg)
+    # Rotate the password - note that rotate_service_password is for leader
+    # storage, and update_user_password uses the manager to get keystone to
+    # update the password in MySQL
+    passwd = rotate_service_password(service)
+    update_user_password(service, passwd, SERVICE_DOMAIN)
+    # Update just the password for the the relation data for the service.
+    relation_data = {
+        "service_password": passwd,
+    }
+    # workout what the relation id is?
+    id_svc_rel_ids = relation_ids('identity-service')
+    _relation_ids = []
+    for rid in id_svc_rel_ids:
+        rel_service_username = relation_get(unit=local_unit(),
+                                            rid=rid,
+                                            attribute='service_username')
+        if rel_service_username == service:
+            _relation_ids.append(rid)
+    if not _relation_ids:
+        msg = ("Service '{}' not found in relations, so not updating relation "
+               "data." .format(service))
+        log(msg, level=INFO)
+        return
+    for rid in _relation_ids:
+        peer_store_and_set(relation_id=rid, **relation_data)
+        relation_set(relation_id=rid, **relation_data)
+
+
 def get_api_version():
     api_version = config('preferred-api-version')
     cmp_release = CompareOpenStackReleases(
@@ -1696,13 +1790,39 @@ def get_service_password(service_username):
     _migrate_service_passwords()
     passwd = leader_get("{}_passwd".format(service_username))
     if passwd is None:
-        passwd = pwgen(length=64)
-
+        passwd = pwgen(length=SERVICE_PASSWD_LENGTH)
     return passwd
 
 
 def set_service_password(passwd, user):
     _leader_set_secret({"{}_passwd".format(user): passwd})
+
+
+def rotate_service_password(service_username):
+    """Create a new service password for a service user and save it.
+
+    It is saved via `set_service_password`.
+
+    :param service_username: The service username to set the password for.
+    :type service_username: str
+    :returns: the generated password.
+    :rtype: str
+    """
+    passwd = pwgen(length=SERVICE_PASSWD_LENGTH)
+    set_service_password(passwd, service_username)
+    return passwd
+
+
+def is_service_password_saved(service_username):
+    """Return true if the service_username has been saved.
+
+    :param service_username: The service username to check.
+    :type service_username: str
+    :returns: True if set
+    :rtype: bool
+    """
+    passwd = leader_get("{}_passwd".format(service_username))
+    return passwd is not None
 
 
 def is_password_changed(username, passwd):
