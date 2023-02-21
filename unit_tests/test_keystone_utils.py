@@ -2090,3 +2090,160 @@ class TestKeystoneUtils(CharmTestCase):
                 ['member', 'MissingRole'],
                 manager),
             ['Member'])
+
+    @patch.object(utils, 'leader_get')
+    def test_get_service_usernames(self, leader_get):
+        leader_get.return_value = {
+            'ignore-me': 'ignored-value',
+            'glance_passwd': 'glance-pass',
+            'admin_passed': 'ignored-value',
+            'head_passwd': 'ignored-value',
+            'cinderv2_cinderv3_passwd': 'cinder-pass',
+            'cinderv2_other_passwd': 'ignored-value',
+            'keystone_passwd': 'ignored-value',
+        }
+        self.assertEqual(sorted(utils.get_service_usernames()),
+                         sorted(['glance', 'cinderv2_cinderv3']))
+
+    @patch.object(utils, 'update_user_password')
+    @patch.object(utils, 'rotate_service_password')
+    @patch.object(utils, 'is_service_password_saved')
+    @patch.object(utils, 'is_leader')
+    def test_rotate_service_user_passwd__not_leader(
+        self,
+        is_leader,
+        is_service_password_saved,
+        rotate_service_password,
+        update_user_password,
+    ):
+        is_leader.return_value = False
+        with self.assertRaises(utils.NotLeaderError):
+            utils.rotate_service_user_passwd('glance')
+
+    def _assert_regex_in_log(self, regex):
+        calls = self.log.call_args_list
+        self.assertEqual(len(calls), 1)
+        args = calls[0][0]
+        msg = args[0]
+        self.assertRegex(msg, regex)
+
+    @patch.object(utils, 'update_user_password')
+    @patch.object(utils, 'rotate_service_password')
+    @patch.object(utils, 'is_service_password_saved')
+    @patch.object(utils, 'is_leader')
+    @patch.object(utils, 'get_service_usernames')
+    def test_rotate_service_user_passwd__not_valid_service(
+        self,
+        get_service_usernames,
+        is_leader,
+        is_service_password_saved,
+        rotate_service_password,
+        update_user_password,
+    ):
+        is_leader.return_value = True
+        get_service_usernames.return_value = ['glance', 'heat']
+        with self.assertRaises(utils.InvalidService):
+            utils.rotate_service_user_passwd('unknown-service')
+        self._assert_regex_in_log(r"^Invalid service.*unknown-service")
+
+    @patch.object(utils, 'update_user_password')
+    @patch.object(utils, 'rotate_service_password')
+    @patch.object(utils, 'is_service_password_saved')
+    @patch.object(utils, 'is_leader')
+    @patch.object(utils, 'get_service_usernames')
+    def test_rotate_service_user_passwd__service_not_in_model(
+        self,
+        get_service_usernames,
+        is_leader,
+        is_service_password_saved,
+        rotate_service_password,
+        update_user_password,
+    ):
+        is_leader.return_value = True
+        is_service_password_saved.return_value = False
+        get_service_usernames.return_value = ['glance', 'heat']
+        with self.assertRaises(utils.InvalidService):
+            utils.rotate_service_user_passwd('glance')
+        self._assert_regex_in_log(r"^Service requested.*this model")
+
+    @patch.object(utils, 'update_user_password')
+    @patch.object(utils, 'rotate_service_password')
+    @patch.object(utils, 'is_service_password_saved')
+    @patch.object(utils, 'is_leader')
+    @patch.object(utils, 'get_service_usernames')
+    def test_rotate_service_user_passwd__service_not_in_relations(
+        self,
+        get_service_usernames,
+        is_leader,
+        is_service_password_saved,
+        rotate_service_password,
+        update_user_password,
+    ):
+        is_leader.return_value = True
+        is_service_password_saved.return_value = True
+        get_service_usernames.return_value = ['glance', 'heat']
+        self.relation_ids.return_value = []
+        rotate_service_password.return_value = 'the-password'
+        utils.rotate_service_user_passwd('glance')
+        self._assert_regex_in_log(
+            r"^Service .*'glance'.*not found.*relations")
+        rotate_service_password.assert_called_once_with('glance')
+        update_user_password.assert_called_once_with(
+            'glance', 'the-password', utils.SERVICE_DOMAIN)
+        self.relation_ids.assert_called_once_with('identity-service')
+
+    @patch.object(utils, 'update_user_password')
+    @patch.object(utils, 'rotate_service_password')
+    @patch.object(utils, 'is_service_password_saved')
+    @patch.object(utils, 'is_leader')
+    @patch.object(utils, 'get_service_usernames')
+    def test_rotate_service_user_passwd__complete(
+        self,
+        get_service_usernames,
+        is_leader,
+        is_service_password_saved,
+        rotate_service_password,
+        update_user_password,
+    ):
+        is_leader.return_value = True
+        is_service_password_saved.return_value = True
+        get_service_usernames.return_value = ['glance', 'heat']
+        self.relation_ids.return_value = ['relation:4']
+        self.relation_get.return_value = 'glance'
+        rotate_service_password.return_value = 'the-password'
+        self.local_unit.return_value = 'keystone/0'
+
+        utils.rotate_service_user_passwd('glance')
+        self.log.assert_not_called()
+        rotate_service_password.assert_called_once_with('glance')
+        update_user_password.assert_called_once_with(
+            'glance', 'the-password', utils.SERVICE_DOMAIN)
+        self.relation_ids.assert_called_once_with('identity-service')
+        self.relation_get.assert_called_once_with(
+            unit='keystone/0', rid='relation:4',
+            attribute='service_username')
+        self.peer_store_and_set.assert_called_once_with(
+            relation_id='relation:4', service_password='the-password')
+        self.relation_set.assert_called_once_with(
+            relation_id='relation:4', service_password='the-password')
+
+    @patch.object(utils, 'set_service_password')
+    @patch.object(utils, 'pwgen')
+    def test_rotate_service_password(self, pwgen, set_service_password):
+        pwgen.return_value = 'the-password'
+        self.assertEqual(utils.rotate_service_password('glance'),
+                         'the-password')
+        pwgen.assert_called_once_with(length=utils.SERVICE_PASSWD_LENGTH)
+        set_service_password.assert_called_once_with('the-password', 'glance')
+
+    @patch.object(utils, 'leader_get')
+    def test_is_service_password_saved__true(self, _leader_get):
+        _leader_get.return_value = 'a-thing'
+        self.assertTrue(utils.is_service_password_saved('glance'))
+        _leader_get.assert_called_once_with('glance_passwd')
+
+    @patch.object(utils, 'leader_get')
+    def test_is_service_password_saved__false(self, _leader_get):
+        _leader_get.return_value = None
+        self.assertFalse(utils.is_service_password_saved('glance'))
+        _leader_get.assert_called_once_with('glance_passwd')
