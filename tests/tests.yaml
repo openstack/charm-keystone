@@ -8,7 +8,6 @@ gate_bundles:
 
 dev_bundles:
 - jammy-antelope
-- kinetic-zed
 - lunar-antelope
 
 comment: |
@@ -40,7 +39,6 @@ tests_options:
   policyd:
     service: keystone
   force_deploy:
-    - kinetic-zed
     - lunar-antelope
 target_deploy_status:
   vault:
