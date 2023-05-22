@@ -410,13 +410,25 @@ def db_changed():
     if 'shared-db' not in CONFIGS.complete_contexts():
         log('shared-db relation incomplete. Peer not ready?')
     else:
-        CONFIGS.write(KEYSTONE_CONF)
+        # here we may need to restart keystone's apache2 if the database
+        # password has been rotated as otherwise the
+        # `update_all_identity_related_units()` function will fail as it need
+        # to use keystone to check the database.
+        _maybe_config_updated()
+
         leader_init_db_if_ready(use_current_context=True)
         if CompareOpenStackReleases(
                 os_release('keystone')) >= 'liberty':
             CONFIGS.write(POLICY_JSON)
         update_all_identity_relation_units()
         inform_peers_if_ready(check_api_unit_ready)
+
+
+@restart_on_change(restart_map(),
+                   restart_functions=restart_function_map())
+def _maybe_config_updated():
+    """Restart the keystone service is the configs have been updated."""
+    CONFIGS.write(KEYSTONE_CONF)
 
 
 @hooks.hook('shared-db-relation-departed',
