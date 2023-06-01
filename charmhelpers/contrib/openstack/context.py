@@ -500,6 +500,7 @@ class IdentityServiceContext(OSContextGenerator):
                 int_host = format_ipv6_addr(int_host) or int_host
                 svc_protocol = _resolve('service_protocol') or 'http'
                 auth_protocol = _resolve('auth_protocol') or 'http'
+                admin_role = _resolve('admin_role') or 'Admin'
                 int_protocol = _resolve('internal_protocol') or 'http'
                 api_version = _resolve('api_version') or '2.0'
                 ctxt.update({'service_port': _resolve('service_port'),
@@ -511,6 +512,7 @@ class IdentityServiceContext(OSContextGenerator):
                              'admin_tenant_name': _resolve('service_tenant'),
                              'admin_user': _resolve('service_username'),
                              'admin_password': _resolve('service_password'),
+                             'admin_role': admin_role,
                              'service_protocol': svc_protocol,
                              'auth_protocol': auth_protocol,
                              'internal_protocol': int_protocol,
