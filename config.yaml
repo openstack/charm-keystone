@@ -107,6 +107,16 @@ options:
     type: int
     default: 60
     description: Amount of time (in seconds) the catalog should be cached for.
+  role-cache-expiration:
+    type: int
+    default:
+    description: |
+      Amount of time (in seconds) role assignments should be cached for.
+      Relying on the global expiration_time can cause applications that
+      frequently add/remove role assignments to become slow or fail
+      since assignment changes will take up to expiration_time to sync
+      across all caches. Reducing cache_time means more database queries
+      so if an impact is perceived this value should be increased.
   dogpile-cache-expiration:
     type: int
     default: 600
