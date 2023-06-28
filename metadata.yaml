@@ -5,6 +5,7 @@ description: |
   Keystone is an OpenStack project that provides Identity, Token, Catalog and
   Policy services for use specifically by projects in the OpenStack family. It
   implements OpenStack's Identity API.
+docs: https://discourse.charmhub.io/t/keystone-docs-index/10527
 tags:
 - openstack
 - identity
