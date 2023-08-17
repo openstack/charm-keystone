@@ -2599,6 +2599,23 @@ def get_subordinate_release_packages(os_release, package_type='deb'):
     return SubordinatePackages(install, purge)
 
 
+def get_subordinate_services():
+    """Iterate over subordinate relations and get service information.
+
+    In a similar fashion as with get_subordinate_release_packages(),
+    principle charms can retrieve a list of services advertised by their
+    subordinate charms. This is useful to know about subordinate services when
+    pausing, resuming or upgrading a principle unit.
+
+    :returns: Name of all services advertised by all subordinates
+    :rtype: Set[str]
+    """
+    services = set()
+    for rdata in container_scoped_relation_get('services'):
+        services |= set(json.loads(rdata or '[]'))
+    return services
+
+
 os_restart_on_change = partial(
     pausable_restart_on_change,
     can_restart_now_f=deferred_events.check_and_record_restart_request,
