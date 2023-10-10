@@ -1665,6 +1665,9 @@ class WSGIWorkerConfigContext(WorkerConfigContext):
 
     def __call__(self):
         total_processes = _calculate_workers()
+        enable_wsgi_socket_rotation = config('wsgi-socket-rotation')
+        if enable_wsgi_socket_rotation is None:
+            enable_wsgi_socket_rotation = True
         ctxt = {
             "service_name": self.service_name,
             "user": self.user,
@@ -1678,6 +1681,7 @@ class WSGIWorkerConfigContext(WorkerConfigContext):
             "public_processes": int(math.ceil(self.public_process_weight *
                                               total_processes)),
             "threads": 1,
+            "wsgi_socket_rotation": enable_wsgi_socket_rotation,
         }
         return ctxt
 
