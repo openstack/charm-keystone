@@ -459,3 +459,11 @@ options:
       The config item specifies the auth_ttl otion in [credentials]. This is
       the length of time in minutes for which a signed EC2 or S3 token request
       is valid from the timestamp contained in the token request.
+  wsgi-socket-rotation:
+    type: boolean
+    default: True
+    description: |
+      Allow users to disable Apache wsgi socket rotation. If not configured,
+      this option sets True as the default value, which is consistent with the
+      default value 'WSGISocketRotation On' in Apache. This option should be
+      used with caution. Please read the Apache doc page for more information.
