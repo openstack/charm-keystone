@@ -465,7 +465,10 @@ class TestKeystoneUtils(CharmTestCase):
         mock_keystone = MagicMock()
         mock_keystone.resolve_tenant_id.return_value = 'tenant_id'
         mock_keystone.resolve_domain_id.return_value = service_domain_id
-        mock_keystone.resolve_user_id.return_value = admin_user_id
+        if test_api_version > 2:
+            mock_keystone.resolve_user_id.return_value = admin_user_id
+        else:
+            mock_keystone.resolve_user_id.return_value = None
         KeystoneManager.return_value = mock_keystone
 
         self.relation_get.return_value = {'service': 'keystone',
@@ -506,6 +509,7 @@ class TestKeystoneUtils(CharmTestCase):
                          'internal_protocol': 'http',
                          'internal_port': 81,
                          'service_username': 'keystone',
+                         'service_user_id': admin_user_id,
                          'service_password': 'password',
                          'service_domain': service_domain,
                          'service_domain_id': service_domain_id,

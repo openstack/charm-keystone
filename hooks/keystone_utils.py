@@ -2159,6 +2159,9 @@ def add_service_to_keystone(relation_id=None, remote_unit=None):
     if get_api_version() > 2:
         service_domain = SERVICE_DOMAIN
         service_domain_id = manager.resolve_domain_id(SERVICE_DOMAIN)
+
+    service_user_id = manager.resolve_user_id(service_username,
+                                              user_domain=service_domain)
     service_tenant = config('service-tenant')
     service_tenant_id = manager.resolve_tenant_id(service_tenant,
                                                   domain=service_domain)
@@ -2185,6 +2188,7 @@ def add_service_to_keystone(relation_id=None, remote_unit=None):
         "internal_port": config("service-port"),
         "auth_port": config("admin-port"),
         "service_username": service_username,
+        "service_user_id": service_user_id,
         "service_password": service_password,
         "service_domain": service_domain,
         "service_domain_id": service_domain_id,
