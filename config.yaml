@@ -208,74 +208,12 @@ options:
     type: string
     default: "sql"
     description: |
-      Keystone identity backend, valid options are: sql, ldap, pam.
-      .
-      NOTE: this option should no longer be used to configure ldap. Instead
-      the cs:keystone-ldap subordinate charm should be used to configure ldap
-      backends.
+      Keystone identity backend, valid options are: sql, pam.
   assignment-backend:
     type: string
     default: "sql"
     description: |
-      Keystone assignment backend, valid options are sql, ldap.
-      .
-      [DEPRECATED] this option should no longer be used to configure ldap.
-      Instead the cs:keystone-ldap subordinate charm should be used to
-      configure ldap backends. This option will be removed in the next release.
-  ldap-server:
-    type: string
-    default: None
-    description: |
-      Ldap server address for keystone identity backend.
-      .
-      [DEPRECATED] this option should no longer be used to configure ldap.
-      Instead the cs:keystone-ldap subordinate charm should be used to
-      configure ldap backends. This option will be removed in the next release.
-  ldap-user:
-    type: string
-    default: None
-    description: |
-      Username of the ldap identity server.
-      .
-      [DEPRECATED] this option should no longer be used to configure ldap.
-      Instead the cs:keystone-ldap subordinate charm should be used to
-      configure ldap backends. This option will be removed in the next release.
-  ldap-password:
-    type: string
-    default: None
-    description: |
-      Password of the ldap identity server.
-      .
-      [DEPRECATED] this option should no longer be used to configure ldap.
-      Instead the cs:keystone-ldap subordinate charm should be used to
-      configure ldap backends. This option will be removed in the next release.
-  ldap-suffix:
-    type: string
-    default: None
-    description: |
-      Ldap server suffix to be used by keystone.
-      .
-      [DEPRECATED] this option should no longer be used to configure ldap.
-      Instead the cs:keystone-ldap subordinate charm should be used to
-      configure ldap backends. This option will be removed in the next release.
-  ldap-config-flags:
-    type: string
-    default: None
-    description: |
-      Comma-separated options for ldap configuration.
-      .
-      [DEPRECATED] this option should no longer be used to configure ldap.
-      Instead the cs:keystone-ldap subordinate charm should be used to
-      configure ldap backends. This option will be removed in the next release.
-  ldap-readonly:
-    type: boolean
-    default: True
-    description: |
-      Ldap identity server backend readonly to keystone.
-      .
-      [DEPRECATED] this option should no longer be used to configure ldap.
-      Instead the cs:keystone-ldap subordinate charm should be used to
-      configure ldap backends. This option will be removed in the next release.
+      Keystone assignment backend.
   # HA configuration settings
   dns-ha:
     type: boolean
