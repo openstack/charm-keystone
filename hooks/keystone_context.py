@@ -216,6 +216,9 @@ class KeystoneContext(context.OSContextGenerator):
         ctxt['catalog_cache_expiration'] = config('catalog-cache-expiration')
         if config('role-cache-expiration') is not None:
             ctxt['role_cache_expiration'] = config('role-cache-expiration')
+        if config('identity-cache-expiration') is not None:
+            ctxt['identity_cache_expiration'] = config(
+                'identity-cache-expiration')
 
         ctxt['dogpile_cache_expiration'] = config('dogpile-cache-expiration')
 

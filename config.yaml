@@ -107,6 +107,16 @@ options:
     type: int
     default: 60
     description: Amount of time (in seconds) the catalog should be cached for.
+  identity-cache-expiration:
+    type: int
+    default:
+    description: |
+      Amount of time (in seconds) user identity information should be cached
+      for. This impacts user information such as email and description, which
+      could display stale information from cache after being updated. Reducing
+      cache_time means more database queries so if an impact is perceived
+      this value should be increased. If unspecified, the default value of
+      600 is used.
   role-cache-expiration:
     type: int
     default:
