@@ -420,6 +420,7 @@ class TestKeystoneUtils(CharmTestCase):
         self.peer_store_and_set.assert_called_with(relation_id=relation_id,
                                                    **relation_data)
 
+    @patch.object(utils, 'create_service_credentials')
     @patch.object(utils, 'get_real_role_names')
     @patch.object(utils, 'is_leader')
     @patch.object(utils, 'leader_set')
@@ -433,14 +434,15 @@ class TestKeystoneUtils(CharmTestCase):
     def test_add_service_to_keystone_no_clustered_no_https_complete_values(
             self, KeystoneManager, add_endpoint, ensure_valid_service,
             _resolve_address, create_user, get_api_version, leader_get,
-            leader_set, is_leader, _get_real_role_names, test_api_version=2):
+            leader_set, is_leader, _get_real_role_names,
+            create_service_credentials, test_api_version=2):
         _get_real_role_names.return_value = ['Member', 'SpecialRole']
         get_api_version.return_value = test_api_version
         leader_get.return_value = None
         is_leader.return_value = True
         relation_id = 'identity-service:0'
         remote_unit = 'unit/0'
-        self.get_service_password.return_value = 'password'
+        create_service_credentials.return_value = 'password'
         self.test_config.set('service-tenant', 'tenant')
         self.test_config.set('admin-role', 'Admin')
         self.get_requested_roles.return_value = ['role1', ]
@@ -453,7 +455,6 @@ class TestKeystoneUtils(CharmTestCase):
 
         service_domain = None
         service_domain_id = None
-        service_role = 'Admin'
         admin_project_id = None
         admin_user_id = None
         if test_api_version > 2:
@@ -486,17 +487,8 @@ class TestKeystoneUtils(CharmTestCase):
                                         publicurl='10.0.0.1',
                                         adminurl='10.0.0.2',
                                         internalurl='192.168.1.2')
-        self.get_service_password.assert_called_with('keystone')
-        create_user.assert_called_with('keystone', 'password',
-                                       domain=service_domain,
-                                       tenant='tenant')
-        self.grant_role.assert_called_with('keystone', service_role,
-                                           project_domain=service_domain,
-                                           tenant='tenant',
-                                           user_domain=service_domain)
-        self.create_role.assert_called_with('role1', user='keystone',
-                                            tenant='tenant',
-                                            domain=service_domain)
+        create_service_credentials.assert_called_with('keystone',
+                                                      new_roles=['role1'])
 
         relation_data = {'admin_domain_id': None,
                          'admin_user_id': admin_user_id,
@@ -729,6 +721,7 @@ class TestKeystoneUtils(CharmTestCase):
         utils.create_service_credentials('serviceA')
         mock_create_user_credentials.assert_has_calls(calls)
 
+    @patch.object(utils, 'create_role')
     @patch.object(utils,
                   'protect_user_account_from_pci_dss_force_change_password')
     @patch.object(utils, 'set_service_password')
@@ -738,7 +731,8 @@ class TestKeystoneUtils(CharmTestCase):
                                            mock_create_user_credentials,
                                            get_callback,
                                            set_callback,
-                                           mock_protect_user_accounts):
+                                           mock_protect_user_accounts,
+                                           mock_create_role):
         get_callback.return_value = 'passA'
         cfg = {'service-tenant': 'tenantA', 'admin-role': 'Admin',
                'preferred-api-version': 3}
@@ -752,6 +746,9 @@ class TestKeystoneUtils(CharmTestCase):
 
         utils.create_service_credentials('serviceA')
         mock_create_user_credentials.assert_has_calls(calls)
+        mock_create_role.assert_called_once_with('service', user='serviceA',
+                                                 tenant='tenantA',
+                                                 domain='service_domain')
         mock_protect_user_accounts.assert_called_once_with('serviceA')
 
     @patch.object(utils, 'get_api_version')

@@ -224,6 +224,7 @@ WSGI_KEYSTONE_API_CONF = '/etc/apache2/sites-enabled/wsgi-openstack-api.conf'
 UNUSED_APACHE_SITE_FILES = ['/etc/apache2/sites-enabled/keystone.conf',
                             '/etc/apache2/sites-enabled/wsgi-keystone.conf']
 SERVICE_PASSWD_LENGTH = 64
+SERVICE_ROLE = "service"
 
 BASE_RESOURCE_MAP = OrderedDict([
     (KEYSTONE_CONF, {
@@ -1908,6 +1909,11 @@ def create_service_credentials(user, new_roles=None):
                                          tenant=tenant, new_roles=new_roles,
                                          grants=[config('admin-role')],
                                          domain=SERVICE_DOMAIN)
+        # Ensure the service have the service role set. In 2024.1 release
+        # service such as neutron require the service role for certain
+        # operations to function (e.g. update port binding profiles)
+        create_role(SERVICE_ROLE, user=user, tenant=tenant,
+                    domain=SERVICE_DOMAIN)
         # protect the user from pci_dss password shenanigans
         protect_user_account_from_pci_dss_force_change_password(user)
     return passwd
