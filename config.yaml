@@ -134,6 +134,15 @@ options:
       Amount of time (in seconds) to cache items in the dogpile.cache. This
       only applies to cached methods that do not have an explicitly defined
       cache expiration time.
+  enable-cache:
+    type: boolean
+    default: False
+    description: |
+      Enable caching across Keystone using unit localised memcache; enabling
+      this feature may cause caching inconsistency in multi-unit deployments
+      as mutation/invalidation API operations will only apply to the local unit.
+      Potential impact of inconsistency can also be reduced using the expiration
+      TTL options in the charm.
   fernet-max-active-keys:
     type: int
     default: 3

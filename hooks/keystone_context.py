@@ -221,6 +221,7 @@ class KeystoneContext(context.OSContextGenerator):
                 'identity-cache-expiration')
 
         ctxt['dogpile_cache_expiration'] = config('dogpile-cache-expiration')
+        ctxt['enable_cache'] = config('enable-cache')
 
         ctxt['identity_backend'] = config('identity-backend')
         ctxt['assignment_backend'] = config('assignment-backend')
