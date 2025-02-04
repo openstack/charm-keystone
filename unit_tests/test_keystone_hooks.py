@@ -83,6 +83,7 @@ TO_PATCH = [
     'openstack_upgrade_available',
     'save_script_rc',
     'migrate_database',
+    'bootstrap_keystone',
     'ensure_initial_admin',
     'add_service_to_keystone',
     'update_nrpe_config',
@@ -627,6 +628,7 @@ class KeystoneRelationTests(CharmTestCase):
         cmd = ['a2dissite', 'openstack_https_frontend']
         self.check_call.assert_called_with(cmd)
 
+    @patch.object(hooks, 'is_bootstrapped')
     @patch.object(utils, 'get_subordinate_release_packages')
     @patch.object(hooks, 'bootstrap_keystone')
     @patch.object(hooks,
@@ -650,8 +652,11 @@ class KeystoneRelationTests(CharmTestCase):
                                   mock_maybe_do_policyd_overrides,
                                   mock_protect_service_accounts,
                                   mock_bootstrap_keystone,
-                                  mock_get_subordinate_release_packages):
+                                  mock_get_subordinate_release_packages,
+                                  mock_is_bootstrapped):
         os_release.return_value = 'havana'
+        self.os_release.return_value = 'havana'
+        mock_is_bootstrapped.return_value = True
         mock_is_db_initialised.return_value = True
         mock_is_db_ready.return_value = True
         mock_relation_ids.return_value = []
@@ -672,6 +677,7 @@ class KeystoneRelationTests(CharmTestCase):
             ANY, "keystone", restart_handler=ANY)
         mock_protect_service_accounts.assert_called_once_with()
 
+    @patch.object(hooks, 'is_bootstrapped')
     @patch.object(utils, 'get_subordinate_release_packages')
     @patch.object(hooks, 'bootstrap_keystone')
     @patch.object(hooks,
@@ -696,10 +702,13 @@ class KeystoneRelationTests(CharmTestCase):
             mock_maybe_do_policyd_overrides,
             mock_protect_service_accounts,
             mock_bootstrap_keystone,
-            mock_get_subordinate_release_packages):
+            mock_get_subordinate_release_packages,
+            mock_is_bootstrapped):
         os_release.return_value = 'havana'
+        self.os_release.return_value = 'havana'
         mock_is_db_initialised.return_value = True
         mock_is_db_ready.return_value = True
+        mock_is_bootstrapped.return_value = True
         mock_relation_ids.return_value = []
         self.remove_old_packages.return_value = True
         self.services.return_value = ['apache2']
@@ -718,14 +727,17 @@ class KeystoneRelationTests(CharmTestCase):
             ANY, "keystone", restart_handler=ANY)
         mock_protect_service_accounts.assert_called_once_with()
 
+    @patch.object(hooks, 'is_bootstrapped')
     @patch.object(hooks, 'bootstrap_keystone')
     @patch.object(hooks, 'update_all_identity_relation_units')
     @patch.object(hooks, 'is_db_initialised')
     def test_leader_init_db_if_ready(self, is_db_initialized,
-                                     update, mock_bootstrap_keystone):
+                                     update, mock_bootstrap_keystone,
+                                     is_boostrapped):
         """ Verify leader initilaizes db """
         self.is_elected_leader.return_value = True
         is_db_initialized.return_value = False
+        is_boostrapped.return_value = False
         self.is_db_ready.return_value = True
         self.os_release.return_value = 'mitaka'
         hooks.leader_init_db_if_ready()
@@ -745,16 +757,34 @@ class KeystoneRelationTests(CharmTestCase):
         self.assertFalse(self.migrate_database.called)
         self.assertFalse(update.called)
 
+    @patch.object(hooks, 'is_bootstrapped')
     @patch.object(hooks, 'update_all_identity_relation_units')
     @patch.object(hooks, 'is_db_initialised')
-    def test_leader_init_db_not_initilaized(self, is_db_initialized, update):
+    def test_leader_init_db_not_initilaized(self, is_db_initialized, update,
+                                            is_bootstrapped):
         """ Verify leader does not initilaize db when already initialized """
+        self.os_release.return_value = 'havana'
         self.is_elected_leader.return_value = True
         is_db_initialized.return_value = True
+        is_bootstrapped.return_value = True
         hooks.leader_init_db_if_ready()
-        self.log.assert_called_with('Database already initialised - skipping '
-                                    'db init', level='DEBUG')
         self.assertFalse(self.migrate_database.called)
+        self.assertFalse(self.bootstrap_keystone.called)
+        self.assertTrue(update.called)
+
+    @patch.object(hooks, 'is_bootstrapped')
+    @patch.object(hooks, 'update_all_identity_relation_units')
+    @patch.object(hooks, 'is_db_initialised')
+    def test_leader_init_db_not_initilaized_not_bootstrapped(
+            self, is_db_initialized, update, is_bootstrapped):
+        """ Verify leader does not initilaize db when already initialized """
+        self.os_release.return_value = 'havana'
+        self.is_elected_leader.return_value = True
+        is_db_initialized.return_value = True
+        is_bootstrapped.return_value = False
+        hooks.leader_init_db_if_ready()
+        self.assertFalse(self.migrate_database.called)
+        self.assertTrue(self.bootstrap_keystone.called)
         self.assertTrue(update.called)
 
     @patch.object(hooks, 'update_all_identity_relation_units')

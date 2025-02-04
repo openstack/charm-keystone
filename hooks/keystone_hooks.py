@@ -109,6 +109,7 @@ from keystone_utils import (
     setup_ipv6,
     send_notifications,
     is_db_initialised,
+    is_bootstrapped,
     is_service_present,
     delete_service_entry,
     assess_status,
@@ -379,11 +380,6 @@ def leader_init_db_if_ready(use_current_context=False):
         log("Not leader - skipping db init", level=DEBUG)
         return
 
-    if is_db_initialised():
-        log("Database already initialised - skipping db init", level=DEBUG)
-        update_all_identity_relation_units()
-        return
-
     # Bugs 1353135 & 1187508. Dbs can appear to be ready before the
     # units acl entry has been added. So, if the db supports passing
     # a list of permitted units then check if we're in the list.
@@ -392,8 +388,11 @@ def leader_init_db_if_ready(use_current_context=False):
             level=INFO)
         return
 
-    migrate_database()
-    bootstrap_keystone(configs=CONFIGS)
+    if not is_db_initialised():
+        migrate_database()
+    if not is_bootstrapped():
+        bootstrap_keystone(configs=CONFIGS)
+
     ensure_initial_admin(config)
     if CompareOpenStackReleases(
             os_release('keystone')) >= 'liberty':
