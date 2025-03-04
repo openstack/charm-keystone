@@ -494,3 +494,10 @@ options:
       When set to `True`, Keystone will be configured to send notifications
       using the `messagingv2` driver. The default value is `False`,
       meaning notifications are disabled unless explicitly enabled.
+  healthcheck-timeout:
+    type: int
+    default: 5000
+    description: |
+      Set additional check timeout (in milisecond), but only after a connection
+      has been already established. This allows to give a better chance to the
+      backend to reply when the query is slow.
