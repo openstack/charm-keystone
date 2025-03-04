@@ -43,6 +43,9 @@ from charmhelpers.contrib.openstack.utils import (
 )
 
 
+MIN_HEALTHCHECK_TIMEOUT = 1  # msecs
+
+
 class MiddlewareContext(context.OSContextGenerator):
     interfaces = ['keystone-middleware']
 
@@ -166,6 +169,8 @@ class HAProxyContext(context.HAProxyContext):
         healthcheck = [{
             'option': 'httpchk GET /healthcheck',
             'http-check': 'expect status 200',
+            'timeout check': str(max(MIN_HEALTHCHECK_TIMEOUT,
+                                     config('healthcheck-timeout'))),
         }]
 
         backend_options = {

@@ -108,11 +108,13 @@ class TestKeystoneContexts(CharmTestCase):
             is_ipv6_disabled, mock_https):
         os.environ['JUJU_UNIT_NAME'] = 'keystone'
 
+        self.test_config.set('healthcheck-timeout', 3000)
+
         mock_relation_ids.return_value = ['identity-service:0', ]
         mock_get_relation_ip.return_value = '1.2.3.4'
         mock_relation_get.return_value = '10.0.0.0'
         mock_related_units.return_value = ['unit/0', ]
-        mock_config.return_value = None
+        mock_config.side_effect = self.test_config.get
         mock_get_address_in_network.return_value = None
         mock_get_netmask_for_address.return_value = '255.255.255.0'
         self.determine_apache_port.return_value = '34'
@@ -125,6 +127,7 @@ class TestKeystoneContexts(CharmTestCase):
         healthcheck = [{
             'option': 'httpchk GET /healthcheck',
             'http-check': 'expect status 200',
+            'timeout check': '3000',
         }]
 
         self.maxDiff = None

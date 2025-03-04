@@ -486,3 +486,10 @@ options:
       this option sets True as the default value, which is consistent with the
       default value 'WSGISocketRotation On' in Apache. This option should be
       used with caution. Please read the Apache doc page for more information.
+  healthcheck-timeout:
+    type: int
+    default: 5000
+    description: |
+      Set additional check timeout (in milisecond), but only after a connection
+      has been already established. This allows to give a better chance to the
+      backend to reply when the query is slow.
