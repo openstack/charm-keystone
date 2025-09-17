@@ -136,7 +136,7 @@ options:
       cache expiration time.
   enable-cache:
     type: boolean
-    default: False
+    default: True
     description: |
       Enable caching across Keystone using unit localised memcache; enabling
       this feature may cause caching inconsistency in multi-unit deployments
