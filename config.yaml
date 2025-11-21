@@ -179,6 +179,20 @@ options:
       set to twice the number of CPU cores a service unit has. This default
       value will be capped to 4 workers unless this configuration option
       is set.
+  admin-worker-multiplier:
+    type: float
+    default:
+    description: |
+      The CPU core multiplier to use when configuring worker processes for
+      the admin service. If not provided, the number of admin workers will be 
+      derived from the worker-multiplier value using 25% of total processes.
+  public-worker-multiplier:
+    type: float
+    default:
+    description: |
+      The CPU core multiplier to use when configuring worker processes for
+      the public service. If not provided, the number of public workers will be 
+      derived from the worker-multiplier value using 75% of total processes.
   preferred-api-version:
     type: int
     default:
