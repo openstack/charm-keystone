@@ -7,6 +7,11 @@ options:
     type: boolean
     default: False
     description: Enable verbose logging.
+  audit-middleware:
+    type: boolean
+    default: False
+    description: |
+      Enable Keystone auditing middleware for logging API calls.
   log-level:
     type: string
     default: WARNING

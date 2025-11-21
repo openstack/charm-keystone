@@ -243,10 +243,12 @@ BASE_RESOURCE_MAP = OrderedDict([
                          service='keystone',
                          config_file=KEYSTONE_CONF),
                      keystone_context.MiddlewareContext(),
-                     keystone_context.AuthMethods()]
+                     keystone_context.AuthMethods(),
+                     context.KeystoneAuditMiddleware(service='keystone')]
     }),
     (KEYSTONE_LOGGER_CONF, {
-        'contexts': [keystone_context.KeystoneLoggingContext()],
+        'contexts': [keystone_context.KeystoneLoggingContext(),
+                     context.KeystoneAuditMiddleware(service='keystone')],
         'services': BASE_SERVICES,
     }),
     (HAPROXY_CONF, {
