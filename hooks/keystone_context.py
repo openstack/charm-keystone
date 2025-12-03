@@ -276,6 +276,11 @@ class KeystoneContext(context.OSContextGenerator):
 
         ctxt['default_authorization_ttl'] = config('default-authorization-ttl')
 
+        if config('default-notification-opt-out'):
+            ctxt['notification_opt_out'] = None
+        else:
+            ctxt['notification_opt_out'] = ""
+
         return ctxt
 
     ALLOWED_SECURITY_COMPLIANCE_SCHEMA = {

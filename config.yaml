@@ -491,6 +491,16 @@ options:
       this option sets True as the default value, which is consistent with the
       default value 'WSGISocketRotation On' in Apache. This option should be
       used with caution. Please read the Apache doc page for more information.
+  default-notification-opt-out:
+    type: boolean
+    default: True
+    description: |
+      If True, uses Keystone default notification filtering.
+      If False, clears the default opt-outs, allowing all notifications
+      (including authentication events) to be sent.
+      These default notifications are described in the upstream
+      configuration documentation under 'notification_opt_out.'
+      https://docs.openstack.org/keystone/latest/configuration/config-options.html
   healthcheck-timeout:
     type: int
     default: 5000
