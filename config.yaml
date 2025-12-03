@@ -189,14 +189,14 @@ options:
     default:
     description: |
       The CPU core multiplier to use when configuring worker processes for
-      the admin service. If not provided, the number of admin workers will be 
+      the admin service. If not provided, the number of admin workers will be
       derived from the worker-multiplier value using 25% of total processes.
   public-worker-multiplier:
     type: float
     default:
     description: |
       The CPU core multiplier to use when configuring worker processes for
-      the public service. If not provided, the number of public workers will be 
+      the public service. If not provided, the number of public workers will be
       derived from the worker-multiplier value using 75% of total processes.
   preferred-api-version:
     type: int
@@ -513,6 +513,16 @@ options:
       When set to `True`, Keystone will be configured to send notifications
       using the `messagingv2` driver. The default value is `False`,
       meaning notifications are disabled unless explicitly enabled.
+  default-notification-opt-out:
+    type: boolean
+    default: True
+    description: |
+      If True, uses Keystone default notification filtering.
+      If False, clears the default opt-outs, allowing all notifications
+      (including authentication events) to be sent.
+      These default notifications are described in the upstream
+      configuration documentation under 'notification_opt_out.'
+      https://docs.openstack.org/keystone/latest/configuration/config-options.html
   healthcheck-timeout:
     type: int
     default: 5000

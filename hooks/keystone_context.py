@@ -278,6 +278,11 @@ class KeystoneContext(context.OSContextGenerator):
 
         ctxt['enable_notifications'] = config('enable-notifications')
 
+        if config('default-notification-opt-out'):
+            ctxt['notification_opt_out'] = None
+        else:
+            ctxt['notification_opt_out'] = ""
+
         return ctxt
 
     ALLOWED_SECURITY_COMPLIANCE_SCHEMA = {
