@@ -7,11 +7,12 @@ description: |
   implements OpenStack's Identity API.
 docs: https://discourse.charmhub.io/t/keystone-docs-index/10527
 tags:
-  - openstack
-  - identity
-  - misc
+- openstack
+- identity
+- misc
 series:
-  - jammy
+- jammy
+- noble
 extra-bindings:
   public:
   admin:
