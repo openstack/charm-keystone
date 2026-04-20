@@ -796,9 +796,9 @@ class TestKeystoneUtils(CharmTestCase):
 
         # test user exists and option exists and is true
         utils.protect_user_account_from_pci_dss_force_change_password('u1')
-        calls = [call('u1', utils.DEFAULT_DOMAIN),
-                 call('u1', utils.SERVICE_DOMAIN)]
-        mock_get_user_dict.has_calls(calls)
+        calls = [call('u1', domain=utils.DEFAULT_DOMAIN),
+                 call('u1', domain=utils.SERVICE_DOMAIN)]
+        mock_get_user_dict.assert_has_calls(calls)
         mock_update_user.assert_not_called()
 
         # test user exists and option exists and is False
@@ -1779,11 +1779,11 @@ class TestKeystoneUtils(CharmTestCase):
         with patch.object(builtins, 'open', mock_open()) as m:
             utils.key_setup()
             m.assert_called_once_with(utils.KEY_SETUP_FILE, "w")
-        self.subprocess.check_output.has_calls(
+        self.subprocess.check_call.assert_has_calls(
             [
-                base_cmd + ['fernet_setup'],
-                base_cmd + ['credential_setup'],
-                base_cmd + ['credential_migrate'],
+                call(base_cmd + ['fernet_setup']),
+                call(base_cmd + ['credential_setup']),
+                call(base_cmd + ['credential_migrate']),
             ])
         mock_path_exists.assert_called_once_with(utils.KEY_SETUP_FILE)
         mock_is_leader.assert_called_once_with()
@@ -1791,7 +1791,7 @@ class TestKeystoneUtils(CharmTestCase):
     def test_fernet_rotate(self):
         cmd = ['sudo', '-u', 'keystone', 'keystone-manage', 'fernet_rotate']
         utils.fernet_rotate()
-        self.subprocess.check_output.called_with(cmd)
+        self.subprocess.check_call.assert_called_with(cmd)
 
     @patch.object(utils, 'is_leader')
     @patch.object(utils, 'leader_get')
@@ -1805,7 +1805,7 @@ class TestKeystoneUtils(CharmTestCase):
         with patch.object(builtins, 'open', mock_open(
                 read_data="some_data")):
             utils.key_leader_set()
-        listdir.has_calls([
+        listdir.assert_has_calls([
             call(utils.FERNET_KEY_REPOSITORY),
             call(utils.CREDENTIAL_KEY_REPOSITORY)])
         leader_set.assert_called_with(
@@ -1833,7 +1833,7 @@ class TestKeystoneUtils(CharmTestCase):
         with patch.object(builtins, 'open', mock_open(
                 read_data="some_data")):
             utils.key_leader_set()
-        listdir.has_calls([
+        listdir.assert_has_calls([
             call(utils.FERNET_KEY_REPOSITORY),
             call(utils.CREDENTIAL_KEY_REPOSITORY)])
         leader_set.assert_not_called()
@@ -1859,12 +1859,20 @@ class TestKeystoneUtils(CharmTestCase):
         with patch.object(builtins, 'open', mock_open()) as m:
             utils.key_write()
             m.assert_called_with(utils.KEY_SETUP_FILE, "w")
-        self.mkdir.has_calls([call(utils.CREDENTIAL_KEY_REPOSITORY,
-                                   owner='keystone', group='keystone',
-                                   perms=0o700),
-                              call(utils.FERNET_KEY_REPOSITORY,
-                                   owner='keystone', group='keystone',
-                                   perms=0o700)])
+        self.mkdir.assert_has_calls([
+            call(utils.FERNET_KEY_REPOSITORY,
+                 owner='keystone', group='keystone',
+                 perms=0o700),
+            call(utils.FERNET_KEY_REPOSITORY + '.tmp',
+                 owner='keystone', group='keystone',
+                 perms=0o700),
+            call(utils.CREDENTIAL_KEY_REPOSITORY,
+                 owner='keystone', group='keystone',
+                 perms=0o700),
+            call(
+                utils.CREDENTIAL_KEY_REPOSITORY + '.tmp',
+                owner='keystone', group='keystone',
+                perms=0o700)])
         tmp_fernet_dir = utils.FERNET_KEY_REPOSITORY + ".tmp"
         tmp_creds_dir = utils.CREDENTIAL_KEY_REPOSITORY + ".tmp"
         # note 'any_order=True' as we are dealing with dictionaries in Py27
@@ -2007,7 +2015,7 @@ class TestKeystoneUtils(CharmTestCase):
             '_charm-keystone-admin', 'fakepassword',
             'all', 'admin', 'default', 'default')
         mock_leader_get.return_value = 'fakepassword'
-        self.assertEquals(utils.get_charm_credentials(), expect)
+        self.assertEqual(utils.get_charm_credentials(), expect)
         mock_leader_get.assert_called_once_with(expect.username + '_passwd')
         mock_leader_get.retrun_value = None
         mock_leader_get.side_effect = [None]
