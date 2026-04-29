@@ -1059,6 +1059,9 @@ class HAProxyContext(OSContextGenerator):
         if config('haproxy-connect-timeout'):
             ctxt['haproxy_connect_timeout'] = config('haproxy-connect-timeout')
 
+        if config('haproxy-enable-proxy-protocol'):
+            ctxt['haproxy_enable_proxy_protocol'] = True
+
         if config('prefer-ipv6'):
             ctxt['local_host'] = 'ip6-localhost'
             ctxt['haproxy_host'] = '::'
@@ -1150,7 +1153,8 @@ class ApacheSSLContext(OSContextGenerator):
     user = group = 'root'
 
     def enable_modules(self):
-        cmd = ['a2enmod', 'ssl', 'proxy', 'proxy_http', 'headers']
+        # NOTE(seyeongkim) : remoteip is for proxy protocol
+        cmd = ['a2enmod', 'ssl', 'proxy', 'proxy_http', 'headers', 'remoteip']
         check_call(cmd)
 
     def configure_cert(self, cn=None):
@@ -1283,6 +1287,8 @@ class ApacheSSLContext(OSContextGenerator):
                 ctxt['ext_ports'].append(int(ext_port))
 
         ctxt['ext_ports'] = sorted(list(set(ctxt['ext_ports'])))
+        if config('haproxy-enable-proxy-protocol'):
+            ctxt['haproxy_enable_proxy_protocol'] = True
         return ctxt
 
 
@@ -1791,6 +1797,11 @@ class WSGIWorkerConfigContext(WorkerConfigContext):
         self.admin_process_weight = admin_process_weight
         self.public_process_weight = public_process_weight
 
+    def enable_modules(self):
+        # NOTE(seyeongkim): this is for proxy protocol and non ssl case.
+        cmd = ['a2enmod', 'remoteip']
+        check_call(cmd)
+
     def __call__(self):
         total_processes = _calculate_workers()
         enable_wsgi_socket_rotation = config('wsgi-socket-rotation')
@@ -1819,6 +1830,8 @@ class WSGIWorkerConfigContext(WorkerConfigContext):
         else:
             public_processes = _calculate_workers(public_worker_multiplier)
 
+        self.enable_modules()
+
         ctxt = {
             "service_name": self.service_name,
             "user": self.user,
@@ -1832,6 +1845,8 @@ class WSGIWorkerConfigContext(WorkerConfigContext):
             "threads": 1,
             "wsgi_socket_rotation": enable_wsgi_socket_rotation,
         }
+        if config('haproxy-enable-proxy-protocol'):
+            ctxt['haproxy_enable_proxy_protocol'] = True
         return ctxt
 
 
