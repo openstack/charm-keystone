@@ -40,7 +40,7 @@ applications:
     channel: 8.0/edge
 
   keystone:
-    charm: ../../keystone.charm
+    charm: ../../keystone_ubuntu@20.04-amd64.charm
     num_units: 3
     options:
       openstack-origin: *openstack-origin

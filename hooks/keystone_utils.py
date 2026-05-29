@@ -567,8 +567,8 @@ def restart_pid_check(service_name, ptable_string=None):
     @retry_on_exception(5, base_delay=3, exc_type=AssertionError)
     def check_pids_gone(svc_string):
         log("Checking no pids for {} exist".format(svc_string), level=INFO)
-        assert(subprocess.call(["pgrep", svc_string, "--nslist", "pid",
-                               "--ns", str(os.getpid())]) == 1)
+        assert (subprocess.call(["pgrep", svc_string, "--nslist", "pid",
+                                 "--ns", str(os.getpid())]) == 1)
 
     if not ptable_string:
         ptable_string = service_name
