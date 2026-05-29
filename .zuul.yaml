@@ -1,4 +1,4 @@
 - project:
     templates:
-      - openstack-python3-charm-jobs
+      - openstack-python3-charm-jobs-2023.1
       - openstack-cover-jobs
