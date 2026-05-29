@@ -7,19 +7,14 @@
 #       requirements.  They are intertwined.  Also, Zaza itself should specify
 #       all of its own requirements and if it doesn't, fix it there.
 #
-pyparsing<3.0.0  # aodhclient is pinned in zaza and needs pyparsing < 3.0.0, but cffi also needs it, so pin here.
-
-requests>=2.18.4
+setuptools<82.0.0
 
 stestr>=2.2.0
+flake8==7.1.1
 
+requests>=2.18.4
 coverage>=4.5.2
-pyudev              # for ceph-* charm unit tests (need to fix the ceph-* charm unit tests/mocking)
-git+https://github.com/openstack-charmers/zaza.git#egg=zaza
+zaza==2024.*
 git+https://github.com/openstack-charmers/zaza-openstack-tests.git#egg=zaza.openstack
 
-# Needed for charm-glance:
-git+https://opendev.org/openstack/tempest.git#egg=tempest
-
-croniter            # needed for charm-rabbitmq-server unit tests
-psutil
+git+https://github.com/juju/charm-tools.git

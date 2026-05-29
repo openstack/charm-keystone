@@ -36,7 +36,7 @@ applications:
     channel: latest/edge
 
   keystone:
-    charm: ../../keystone.charm
+    charm: ../../keystone_amd64.charm
     num_units: 3
     options:
       openstack-origin: *openstack-origin
