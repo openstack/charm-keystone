@@ -568,8 +568,8 @@ def restart_pid_check(service_name, ptable_string=None):
     @retry_on_exception(5, base_delay=3, exc_type=AssertionError)
     def check_pids_gone(svc_string):
         log("Checking no pids for {} exist".format(svc_string), level=INFO)
-        assert(subprocess.call(["pgrep", svc_string, "--nslist", "pid",
-                               "--ns", str(os.getpid())]) == 1)
+        assert (subprocess.call(["pgrep", svc_string, "--nslist", "pid",
+                                 "--ns", str(os.getpid())]) == 1)
 
     if not ptable_string:
         ptable_string = service_name
@@ -2646,7 +2646,7 @@ def check_extra_for_assess_status(configs):
     # Check if any of the vips are invalid
     invalid_vips = get_invalid_vips()
     if invalid_vips:
-        return('blocked', f'Invalid vips: {invalid_vips}')
+        return ('blocked', f'Invalid vips: {invalid_vips}')
 
     # verify that the config item, if set, is actually usable and valid
     conf = config('password-security-compliance')
