@@ -314,7 +314,7 @@ class KeystoneContext(context.OSContextGenerator):
                 level='ERROR')
             return None
         # ensure that the top level is a dictionary.
-        if type(config_items) != dict:
+        if type(config_items) is not dict:
             log("Couldn't decode config value for "
                 "'password-security-compliance'.  It doesn't appear to be a "
                 "dictionary: {}".format(str(config_items)),
@@ -332,7 +332,7 @@ class KeystoneContext(context.OSContextGenerator):
             return None
         # check that the types are valid
         valid_types = cls.ALLOWED_SECURITY_COMPLIANCE_SCHEMA
-        invalid_types = {k: (type(v) != valid_types[k])
+        invalid_types = {k: (type(v) is not valid_types[k])
                          for k, v in config_items.items()}
         if any(invalid_types.values()):
             log("Invalid config value type(s) found in config "
