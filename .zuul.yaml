@@ -1,4 +1,10 @@
 - project:
     templates:
       - openstack-python3-charm-jobs-2023.2
-      - openstack-cover-jobs
+      - openstack-cover-charm-jobs
+    check:
+      jobs:
+        - charmbuild
+    vars:
+      charmbuild_charmcraft_channel: 3.x/stable
+      charm_build_name: keystone
