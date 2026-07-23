@@ -672,7 +672,9 @@ def domain_backend_changed(relation_id=None, unit=None):
         # NOTE(jamespage): Only create domain data from lead
         #                  unit when clustered and database
         #                  is configured and created.
-        if is_leader() and is_db_ready() and is_db_initialised():
+        # Skip the local API query when the unit is paused
+        if (not is_unit_paused_set() and is_leader() and is_db_ready() and
+                is_db_initialised()):
             create_or_show_domain(domain_name)
         # NOTE(jamespage): Deployment may have multiple domains,
         #                  with different identity backends so

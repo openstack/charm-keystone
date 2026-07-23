@@ -1024,6 +1024,43 @@ class KeystoneRelationTests(CharmTestCase):
                                        'nonce2')
         self.assertTrue(mock_kv.flush.called)
 
+    @patch.object(hooks, 'is_unit_paused_set')
+    @patch.object(hooks, 'is_db_initialised')
+    @patch.object(utils, 'run_in_apache')
+    @patch.object(utils, 'restart_pid_check')
+    def test_domain_backend_changed_complete_paused(self,
+                                                    restart_pid_check,
+                                                    run_in_apache,
+                                                    is_db_initialised,
+                                                    is_unit_paused_set):
+        run_in_apache.return_value = True
+        self.get_api_version.return_value = 3
+        self.relation_get.side_effect = ['mydomain', 'nonce2']
+        self.is_leader.return_value = True
+        self.is_db_ready.return_value = True
+        is_db_initialised.return_value = True
+        mock_kv = MagicMock()
+        mock_kv.get.return_value = None
+        self.unitdata.kv.return_value = mock_kv
+        is_unit_paused_set.return_value = True
+
+        hooks.domain_backend_changed()
+
+        self.assertTrue(self.get_api_version.called)
+        self.relation_get.assert_has_calls([
+            call(attribute='domain-name',
+                 unit=None,
+                 rid=None),
+            call(attribute='restart-nonce',
+                 unit=None,
+                 rid=None),
+        ])
+        # A paused unit must not query local Keystone API
+        self.assertFalse(self.create_or_show_domain.called)
+        mock_kv.set.assert_called_with('domain-restart-nonce-mydomain',
+                                       'nonce2')
+        self.assertTrue(mock_kv.flush.called)
+
     @patch.object(hooks, 'os_release')
     @patch.object(hooks, 'relation_id')
     @patch.object(hooks, 'is_unit_paused_set')
