@@ -37,6 +37,7 @@ from keystone_utils import (
     resume_unit_helper,
     register_configs,
 )
+from keystone_hooks import update_all_domain_backends
 
 
 def pause(args):
@@ -50,9 +51,15 @@ def pause(args):
 def resume(args):
     """Resume all the Keystone services.
 
+    Also completes any domain-backend reconciliation that was deferred
+    while the unit was paused, so that a domain-backend relation is not
+    left unreconciled indefinitely after a paused openstack-upgrade
+    (LP: #2012647).
+
     @raises Exception if any services fail to start
     """
     resume_unit_helper(register_configs())
+    update_all_domain_backends()
 
 
 # A dictionary of all the defined actions to callables (which take
