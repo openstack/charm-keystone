@@ -19,9 +19,12 @@ from test_utils import CharmTestCase
 
 with patch('charmhelpers.contrib.openstack.utils.'
            'snap_install_requested') as snap_install_requested, \
-        patch('keystone_utils.register_configs') as configs:
+        patch('keystone_utils.register_configs') as configs, \
+        patch('keystone_utils.restart_map'), \
+        patch('keystone_utils.run_in_apache') as mock_run_in_apache:
     snap_install_requested.return_value = False
     configs.return_value = 'test-config'
+    mock_run_in_apache.return_value = True
     import actions.actions
 
 
@@ -51,11 +54,34 @@ class ResumeTestCase(CharmTestCase):
 
     def setUp(self):
         super(ResumeTestCase, self).setUp(
-            actions.actions, ["resume_unit_helper"])
+            actions.actions,
+            ["resume_unit_helper", "update_all_domain_backends"])
 
     def test_pauses_services(self):
         actions.actions.resume([])
         self.resume_unit_helper.assert_called_once_with('test-config')
+
+    def test_reconciles_domain_backends_after_resuming(self):
+        # A domain-backend reconciliation deferred while paused (LP:
+        # #2012647) must be completed once the unit is resumed.
+        actions.actions.resume([])
+        self.resume_unit_helper.assert_called_once_with('test-config')
+        self.update_all_domain_backends.assert_called_once_with()
+
+    def test_domain_backend_reconciliation_runs_after_services_resumed(self):
+        # the reconciliation call must happen only after resume_unit_helper()
+        # has returned (after the unit is no longer marked paused), not
+        # concurrently with or before resume
+        call_order = []
+        self.resume_unit_helper.side_effect = (
+            lambda *a, **k: call_order.append('resume_unit_helper'))
+        self.update_all_domain_backends.side_effect = (
+            lambda *a, **k: call_order.append('update_all_domain_backends'))
+
+        actions.actions.resume([])
+
+        self.assertEqual(
+            call_order, ['resume_unit_helper', 'update_all_domain_backends'])
 
 
 class MainTestCase(CharmTestCase):
