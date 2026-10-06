@@ -229,6 +229,14 @@ options:
     description: |
       Connect timeout configuration in ms for haproxy, used in HA
       configurations. If not provided, default value of 9000ms is used.
+  haproxy-enable-proxy-protocol:
+    type: boolean
+    default: False
+    description: |
+      Enable PROXY protocol support between HAProxy and Apache so that the
+      original client IP address is preserved and forwarded to Apache.
+      This is required for features that depend on the real client IP,
+      such as accurate request logging.
   database:
     type: string
     default: "keystone"
